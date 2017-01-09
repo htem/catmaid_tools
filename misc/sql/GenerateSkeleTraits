@@ -1,0 +1,5 @@
+--Creates lists based on tag ids for L5_apicals, Inhibitory, and Excitatory cells.
+--Must be run after "psql catmaid catmaid_user" command and login on catmaid server
+\copy ((SELECT DISTINCT skeleton_id AS L5_Apical_Skeleton FROM treenode, treenode_class_instance WHERE (treenode.id = treenode_class_instance.treenode_id AND (treenode_class_instance.class_instance_id = 4385962 OR treenode_class_instance.class_instance_id = 3352996)))) TO 'L5ApicalList.csv' WITH CSV
+\copy (SELECT DISTINCT skeleton_id AS Excitatory_Skeletons FROM treenode, treenode_class_instance WHERE (treenode.id = treenode_class_instance.treenode_id AND (treenode_class_instance.class_instance_id = 4333050 OR treenode_class_instance.class_instance_id = 4353302))) TO 'ExcitatoryList.csv' WITH CSV
+\copy (SELECT DISTINCT skeleton_id AS Inhibitory_Skeletons FROM treenode, treenode_class_instance WHERE (treenode.id = treenode_class_instance.treenode_id AND (treenode_class_instance.class_instance_id = 4384526))) TO 'InhibitoryList.csv' WITH CSV

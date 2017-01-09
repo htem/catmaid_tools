@@ -1,0 +1,63 @@
+{
+  "synapse.pre.outside": {
+    "material": "synapse.pre.outside",
+    "options": {
+      "hide": true,
+      "size": 0.003
+      }
+  },
+  "soma": {
+    "material": "soma",
+    "options": {
+      "size": 0.045
+      }
+    },
+  "axon": {
+    "material": "axon",
+    "options": {
+      "bevel_depth": 0.001,
+      "fill_mode": "FULL",
+      "dimensions": "3D"
+      }
+  },
+  "dendrite": {
+    "material": "dendrite",
+    "options": {
+      "bevel_depth": 0.001,
+      "fill_mode": "FULL",
+      "dimensions": "3D"
+      }
+    },
+  "synapse.auto.within": {
+    "material": "synapse.auto.within",
+    "options": {
+      "size": 0.003
+      }
+    },
+  "synapse.auto.outside": {
+    "material": "synapse.auto.outside",
+    "options": {
+      "hide": true,
+      "size": 0.003
+      }
+    },
+  "synapse.post.outside": {
+    "material": "synapse.post.outside",
+    "options": {
+      "hide": true,
+      "size": 0.003
+      }
+    },
+  "synapse.post.within": {
+    "material": "synapse.post.within",
+    "options": {
+      "size": 0.003
+      }
+    },
+  "synapse.pre.within": {
+    "material": "synapse.pre.within",
+    "options": {
+      "size": 0.003
+      }
+    }
+  }

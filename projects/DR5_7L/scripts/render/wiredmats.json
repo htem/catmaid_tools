@@ -1,0 +1,51 @@
+{
+  "synapse.pre.outside": {
+    "alpha": 0.05,
+    "diffuse_color": [0.0, 1.0, 1.0],
+    "use_transparency": true,
+    "use_raytrace": false
+  },
+  "soma": {
+    "alpha": "E:ifnan(float(skeleton['attrs']['r']),0.01,1.):0.01",
+    "diffuse_color": "E:(float(skeleton['attrs']['r'])/255., float(skeleton['attrs']['g'])/255., float(skeleton['attrs']['b'])/255.):(0.6, 0.6, 0.6)",
+    "use_transparency": true
+  },
+  "axon": {
+    "alpha": "E:ifnan(float(skeleton['attrs']['r']),0.01,1.):0.01",
+    "specular_intensity": 1.0,
+    "diffuse_color": "E:(float(skeleton['attrs']['r'])/255., float(skeleton['attrs']['g'])/255., float(skeleton['attrs']['b'])/255.):(0.6, 0.6, 0.6)",
+    "emit": 1.0,
+    "use_transparency": true
+  },
+  "dendrite": {
+    "alpha": "E:ifnan(float(skeleton['attrs']['r']),0.01,1.):0.01",
+    "diffuse_color": "E:(float(skeleton['attrs']['r'])/255., float(skeleton['attrs']['g'])/255., float(skeleton['attrs']['b'])/255.):(0.6, 0.6, 0.6)",
+    "use_transparency": true
+  },
+  "synapse.auto.within": {
+    "diffuse_color": "E:(float(pre['attrs']['r'])/255., float(pre['attrs']['g'])/255., float(pre['attrs']['b'])/255.):(0., 1., 1.)"
+  },
+  "apical": {
+    "alpha": "E:ifnan(float(skeleton['attrs']['r']),0.01,1.):0.01",
+    "diffuse_color": "E:(float(skeleton['attrs']['r'])/255., float(skeleton['attrs']['g'])/255., float(skeleton['attrs']['b'])/255.):(0.6, 0.6, 0.6)",
+    "use_transparency": true
+  },
+  "synapse.auto.outside": {
+    "alpha": 0.05,
+    "diffuse_color": [0.0, 1.0, 0.0],
+    "use_transparency": true,
+    "use_raytrace": false
+  },
+  "synapse.post.outside": {
+    "alpha": 0.05,
+    "diffuse_color": [1.0, 0.0, 0.0],
+    "use_transparency": true,
+    "use_raytrace": false
+  },
+  "synapse.post.within": {
+    "diffuse_color": "E:(float(post['attrs']['r'])/255., float(post['attrs']['g'])/255., float(post['attrs']['b'])/255.):(1., 0., 0.)"
+  },
+  "synapse.pre.within": {
+    "diffuse_color": "E:(float(pre['attrs']['r'])/255., float(pre['attrs']['g'])/255., float(pre['attrs']['b'])/255.):(0., 1., 1.)"
+  }
+}

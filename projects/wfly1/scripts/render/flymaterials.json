@@ -1,0 +1,46 @@
+{
+  "synapse.pre.outside": {
+    "alpha": 0.05,
+    "diffuse_color": [0.0,1.0,1.0],
+    "use_transparency": true,
+    "use_raytrace": false
+    },
+  "soma": {
+    "alpha": 0.3,
+    "diffuse_color": [1, 0.2, 0.2],
+    "use_transparency": true
+    },
+  "axon": {
+    "alpha": 0.05,
+    "specular_intensity": 1.0,
+    "diffuse_color": [0,1,1],
+    "emit": 1.0,
+    "use_transparency": true
+    },
+  "dendrite": {
+   "alpha": 0.05,
+   "diffuse_color": "E:(in_list(skeleton['annotations'], 'DM6 ORN', (random_color()), (in_list(skeleton['annotations'], 'PN', (0.8,0.2,0.2), (0,0.5,0.5))))):(0, 1, 1)",
+   "use_transparency": true
+   },
+   "synapse.auto.within": {
+     "diffuse_color": "E:(float(pre['attrs']['r'])/255., float(pre['attrs']['g'])/255., float(pre['attrs']['b'])/255.):(0., 1., 1.)"
+    },
+  "synapse.auto.outside": {
+    "alpha": 0.05,
+    "diffuse_color": [0.0, 1.0, 0.0],
+    "use_transparency": true,
+    "use_raytrace": false
+    },
+  "synapse.post.outside": {
+    "alpha": 0.05,
+    "diffuse_color": [1.0, 0.0, 0.0],
+    "use_transparency": true,
+    "use_raytrace": false
+    },
+  "synapse.post.within": {
+    "diffuse_color": [1.0, 0.0, 0.0]
+    },
+  "synapse.pre.within": {
+    "diffuse_color": [0.0, 1.0, 1.0]
+    }
+  }

@@ -1,0 +1,71 @@
+
+  "synapse.pre.outside": {
+    "material": "synapse.pre.outside",
+    "options": {
+      "hide": true,
+      "size": "E:ifnan((float(pre['attrs']['speed']) - 4) / (60 - 4) * 0.016 + 0.016, 0.01):0.024"
+    }
+  },
+  "soma": {
+    "material": "soma",
+    "options": {
+      "size": "E:ifnan((float(skeleton['attrs']['speed']) - 4) / (60 - 4) * 0.03 + 0.05, 0.04):0.075"
+    }
+  },
+  "axon": {
+    "material": "axon",
+    "options": {
+      "bevel_depth": 0.004,
+      "fill_mode": "FULL",
+      "dimensions": "3D"
+    }
+  },
+  "dendrite": {
+    "material": "dendrite",
+    "options": {
+      "bevel_depth": 0.01,
+      "fill_mode": "FULL",
+      "dimensions": "3D"
+    }
+  },
+  "synapse.auto.within": {
+    "material": "synapse.auto.within",
+    "options": {
+      "size": "E:ifnan((float(pre['attrs']['speed']) - 4) / (60 - 4) * 0.016 + 0.016, 0.01):0.024"
+    }
+  },
+  "apical": {
+    "material": "apical",
+    "options": {
+      "bevel_depth": 0.018,
+      "fill_mode": "FULL",
+      "dimensions": "3D"
+    }
+  },
+  "synapse.auto.outside": {
+    "material": "synapse.auto.outside",
+    "options": {
+      "hide": true,
+      "size": "E:ifnan((float(pre['attrs']['speed']) - 4) / (60 - 4) * 0.016 + 0.016, 0.01):0.024"
+    }
+  },
+  "synapse.post.outside": {
+    "material": "synapse.post.outside",
+    "options": {
+      "hide": true,
+      "size": "E:ifnan((float(pre['attrs']['speed']) - 4) / (60 - 4) * 0.016 + 0.016, 0.01):0.024"
+    }
+  },
+  "synapse.post.within": {
+    "material": "synapse.post.within",
+    "options": {
+      "size": "E:ifnan((float(pre['attrs']['speed']) - 4) / (60 - 4) * 0.016 + 0.016, 0.01):0.024"
+    }
+  },
+  "synapse.pre.within": {
+    "material": "synapse.pre.within",
+    "options": {
+      "size": "E:ifnan((float(pre['attrs']['speed']) - 4) / (60 - 4) * 0.016 + 0.016, 0.01):0.024"
+    }
+  }
+}

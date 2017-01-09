@@ -1,0 +1,7 @@
+{
+  "database": "catmaid",
+  "user": "YOURUSERNAME",
+  "password": "YOURPASSWORD",
+  "host": "YOURSERVER",
+  "port": 5432
+}
