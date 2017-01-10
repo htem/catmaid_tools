@@ -19,10 +19,10 @@ from networkx import dag_longest_path
 from scipy.spatial.distance import euclidean
 
 # Color codes for MLF neurons
-infile = 'Overlay_ColorCodes_WithClass_nucMLF.txt'
+infile = 'ColorCodes_SUBSETnucMLFMauth.txt'
 # Output directories
-outdir = '/zflode/130201zf142/Tracing/Overlays/160803t1000_skeleton_overlays_nucMLF/'
-im_only_dir = '/zflode/130201zf142/Tracing/Overlays/160803t1000_images_only/'
+outdir = '../../results/skeleton_overlays/'
+im_only_dir = '../../results/skeleton_overlays_imagesonly/'
 
 # The skeleton IDs being used are for catmaid 3 SWiFT
 skels_list = [396958, # Mauthner_L
