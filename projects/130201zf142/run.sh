@@ -2,7 +2,6 @@
 
 mkdir -p logs
 mkdir -p data
-mkdir -p data/skeletons_smooth/
 mkdir -p results
 
 SOURCE=`find source_me.sh`

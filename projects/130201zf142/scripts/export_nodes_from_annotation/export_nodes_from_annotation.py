@@ -107,8 +107,10 @@ else:
 print "Scale: {}".format(scale)
 # Find all annotation IDs for a project
 print "Fetching all annotation IDs"
-all_annos = c.fetchJSON(
-    'http://catmaid.hms.harvard.edu/catmaid3/{}/annotations/'.format(pid))
+if c.server[-1] != '/':
+    c.server += '/'
+annos_link = '{}{}/annotations/'.format(c.server, pid)
+all_annos = c.fetchJSON(annos_link) 
 
 if annos is None:
     if os.environ["CATMAID_EXPORT_ANNOTATION"]:
@@ -148,8 +150,8 @@ else:
     post = {('annotated_with[%s]' % i): anno for i, anno in enumerate(anno_id)}
 
 # Query the project for all skeletons that are annotated with the annotation ID
-query = c.fetchJSON('http://catmaid.hms.harvard.edu/catmaid3/{}/annotations/'
-                    'query-targets'.format(pid), post=post)
+query_link = '{}{}/annotations/query-targets'.format(c.server, pid)
+query = c.fetchJSON(query_link, post=post)
 # Pull out the JSON from the query
 
 
