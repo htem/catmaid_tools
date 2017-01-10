@@ -449,7 +449,13 @@ def update_spreadsheet_with_master_errors(errors, urls):
                                              'spreadsheets.google.com/feeds'])
     date = time.strftime("%y%m%d")
     gc = gspread.authorize(credentials)
-    sh = gc.open_by_key('1SwSk5M_lQRZCae9MNJEKdiw1Le9G9u5xeVDcWsfjikk')
+    # Load in google spreadsheet key from env variables
+    try:
+        var = os.environ['GOOGLE_SPREADSHEET_KEY']
+    except KeyError:
+        raise Exception("Google spreadsheet key not set as an environment "
+                        "variable. Cannot access spreadsheet")
+    sh = gc.open_by_key(var)
     sheet_list = sh.worksheets()
     # Create a new worksheet for today
 

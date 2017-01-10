@@ -38,4 +38,4 @@ Once `catmaid.get_source()` is successfully run a ServerSource, a child of the [
 
 ## Examples
 
-Plese see docs/examples for an ipython notebook on how to get started.
+Plese see docs/notebooks for an ipython notebook on how to get started.
