@@ -162,9 +162,9 @@ def check_for_loop(neuron):
     """
     local_errors = []
     local_urls = []
-    for node, ned in enumerate(neuron.dgraph.edge):
-        if ned != neuron.root:
-            if len(ned) < (int(neuron.dgraph.degree(ned)) - 1):
+    for node, ned in neuron.dgraph.edge.items():
+        if node != neuron.root:
+            if len(ned) < (int(neuron.dgraph.degree(node)) - 1):
                 errstr = ("LOOP ERROR: {} {} has node {} which is "
                           "cyclic!".format(neuron.name,
                                            neuron.skeleton_id, ned))
