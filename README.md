@@ -29,13 +29,13 @@ source = catmaid.get_source()
 ```
 The `catmaid.get_source()` command with no arguments attempts to call on environment variables for a server, project, user, and password. If these variables do not exist it prompts for input for each one. These environment variables can be set by adding the following lines to your ~/.bashrc file.
 ```
-    export CATMAID_SERVER = "http://catmaid.your.server"
-    export CATMAID_PROJECT = "Your_Project_Name"
-    export CATMAID_USER = "YourUserName"
-    export CATMAID_PASSWORD = "yourpassword"
+    export CATMAID_SERVER="http://catmaid.your.server"
+    export CATMAID_PROJECT="Your_Project_Name"
+    export CATMAID_USER="YourUserName"
+    export CATMAID_PASSWORD="yourpassword"
 ```
 Once `catmaid.get_source()` is successfully run a ServerSource, a child of the [Source class](https://github.com/htem/catmaid_tools/blob/module/catmaid/source.py#L60), is returned based on a server defined by the environment variables above. This ServerSource has built in methods to fetch and/or save skeletons and neurons from the server.
 
 ## Examples
 
-Plese see docs/notebooks for an ipython notebook on how to get started.
+Plese see [docs/notebooks](docs/notebooks) for an ipython notebook on how to get started.
