@@ -3,6 +3,7 @@ Description:
 - catmaid.py : access script for catmaid data (adjacency matrix, skeleton data, etc...)
 
 # Contributors
+
 * [Brett Graham](https://github.com/braingram)
 * [Brendan Shanny](https://github.com/brenshanny)
 * [Russel Torres](https://github.com/RussTorres)
@@ -10,14 +11,17 @@ Description:
 * [Rui Zheng](https://github.com/rui14)
 
 ## Description
+
 A python package used for pulling and analyzing data from [Catmaid](www.catmaid.org)
 
 ## Installation
+
 Download the [source code (ZIP)](https://github.com/htem/catmaid_tools/archive/module.zip "catmaid_tools source code") and then run:
 ```python
     python setup.py install
 ```
 You may need to run this command with 'sudo'
+
 ## Uses
 
 ####Basic skeleton and Neuron retreival/saving
@@ -38,4 +42,4 @@ Once `catmaid.get_source()` is successfully run a ServerSource, a child of the [
 
 ## Examples
 
-Plese see [docs/notebooks](docs/notebooks) for an ipython notebook on how to get started.
+Please see [docs/notebooks](docs/notebooks) for an ipython notebook on how to get started.
