@@ -1,40 +1,33 @@
+#!/usr/bin/env python
 '''
 This portion of the database transform project pushes skeleton data
     to an existing tracing-ready project in a specified catmaid database.
-
     TODO:
         lookup projectid from project name -- exists in brkn slc script
-
 IMPORTANT: REQUIRES TRACING TO BE SET UP FOR PROJECT IN TARGET DB!
     Accomplished by activating the tracing tool
-
 Original by David G.C. Hildebrand, Ph.D.
 Modified by Russel Torres
 '''
 
 import json
+import logging
+from datetime import datetime
+import argparse
 import psycopg2
 from psycopg2.extensions import AsIs
-from datetime import datetime
 
-projectfile = './20160503_export_FromDB_transformed.json'
-db_settings = '../catmaiddb_new.json'
-projectid = '14'
+DEFAULT_projectfile = './20161224_export_FromDB.json'
+DEFAULT_db_settings = '../catmaiddb.json'
 
 defaultuserid = 1
 oldnodesdone = []   # FIXME ugly hack for recursion issues
+recursion_error_threshold = 5
 
+global o_n_skel
+o_n_skel = {}
 
-def testdbcursorconn(db_settings_file):
-    '''
-    Opens a postgresql connection and cursor using settings in a json file.
-    '''
-    with open(db_settings_file, 'r') as f:
-        conn_catmaid_settings = json.load(f)
-
-    conn_catmaid = psycopg2.connect(**conn_catmaid_settings)
-    curs_catmaid = conn_catmaid.cursor()
-    return curs_catmaid, conn_catmaid
+skeltoskip = []  # skeleton id strings to skip
 
 
 def exportdatabase(project, cursor, connection, projectid, commit_each=True):
@@ -66,14 +59,16 @@ def exportdatabase(project, cursor, connection, projectid, commit_each=True):
     totalconns = len(connectors.keys())
     oldnew_conn = {}
     for i, oldconn in enumerate(connectors):
-        print 'exporting connector {} of {}'.format(i, totalconns)
+        logging.debug('exporting connector {} of {}'.format(i, totalconns))
         oldnew_conn.update({oldconn: newConnector(
             connectors[oldconn], old_to_newuser, newdbref['relations'],
             newdbref['class_instances'], cursor, connection, projectid)})
 
     totalskels = len(skeletons.keys())
     for i, oldskel in enumerate(skeletons):
-        print 'exporting skeleton {} of {}'.format(i, totalskels)
+        if oldskel in skeltoskip:
+            continue
+        logging.debug('exporting skeleton {} of {}'.format(i, totalskels))
         tracing = skeletons[oldskel]['trace']
         annos = skeletons[oldskel]['annotations']
         nm = skeletons[oldskel]['name'].keys()[0]
@@ -83,6 +78,7 @@ def exportdatabase(project, cursor, connection, projectid, commit_each=True):
         newsid = newskel(skelclass,
                          old_to_newuser[str(skeletons[oldskel]['user_id'])],
                          cursor, connection, projectid)
+        o_n_skel.update({oldskel: newsid})
         for anno in annos:
             annoci = newdbref['class_instances']['annotations'][anno]
             addcicirelations(nameci, annoci, annorel, annos[anno],
@@ -112,7 +108,9 @@ def transfer_users(oldusers, cursor):
     old_to_new = {}
     for olduid in oldusers.keys():
         cursor.execute(newrowstring, (oldusers[olduid]['password'],
-                                      oldusers[olduid]['last_login'],
+                                      (oldusers[olduid]['last_login']
+                                       if oldusers[olduid]['last_login'] !=
+                                       'None' else None),
                                       oldusers[olduid]['is_super'],
                                       oldusers[olduid]['username'],
                                       oldusers[olduid]['first_name'],
@@ -168,47 +166,51 @@ def classinstances(dbclasses, annotations, neuronnames, labels, userid,
                     'SELECT %s, %s, %s, %s '
                     'WHERE '
                     'NOT EXISTS (SELECT id FROM class_instance '
-                    'WHERE project_id = %s AND "name" = %s) '
+                    'WHERE project_id = %s AND class_id = %s AND "name" = %s) '
                     'RETURNING id;')
     existingrowstring = ('SELECT id FROM class_instance '
-                         'WHERE project_id = %s AND "name" = %s;')
+                         'WHERE project_id = %s '
+                         'AND class_id = %s AND "name" = %s;')
 
     annodict, namedict, labeldict = {}, {}, {}
     for i in annotations:
         cursor.execute(newrowstring, (userid, projectid,
                        dbclasses['annotation'],
-                       i, projectid, i, ))
+                       i, projectid, dbclasses['annotation'], i, ))
         newid = cursor.fetchone()
         if newid is not None:
             newid = newid[0]
 
         if newid is None:
-            cursor.execute(existingrowstring, (projectid, i, ))
+            cursor.execute(existingrowstring, (
+                projectid, dbclasses['annotation'], i, ))
             newid = cursor.fetchone()[0]
         annodict.update({i: newid})
 
     for i in labels:
         cursor.execute(newrowstring, (userid, projectid,
                        dbclasses['label'],
-                       i, projectid, i, ))
+                       i, projectid, dbclasses['label'], i, ))
         newid = cursor.fetchone()
         if newid is not None:
             newid = newid[0]
 
         if newid is None:
-            cursor.execute(existingrowstring, (projectid, i, ))
+            cursor.execute(existingrowstring, (
+                projectid, dbclasses['label'], i, ))
             newid = cursor.fetchone()[0]
         labeldict.update({i: newid})
     for i in neuronnames:
         cursor.execute(newrowstring, (userid, projectid,
                        dbclasses['neuron'],
-                       i, projectid, i, ))
+                       i, projectid, dbclasses['neuron'], i, ))
         newid = cursor.fetchone()
         if newid is not None:
             newid = newid[0]
 
         if newid is None:
-            cursor.execute(existingrowstring, (projectid, i, ))
+            cursor.execute(existingrowstring, (
+                projectid, dbclasses['neuron'], i, ))
             newid = cursor.fetchone()[0]
         namedict.update({i: newid})
 
@@ -303,7 +305,10 @@ def constructtree(newsid, tracing, root, class_instance, relations,
 def newtrace(new_skel, oldskel, oldparentchild, oldparent, startnode,
              newparent, ci, rel, old_to_newuser, oldnew_conn,
              cursor, connection, projectid):
-    '''Executes a depth-first tracing which generates new nodes with labels'''
+    '''
+    Executes a depth-first tracing which generates new nodes with labels
+        and connector relations
+    '''
 
     count = 0
     elder = None
@@ -314,6 +319,8 @@ def newtrace(new_skel, oldskel, oldparentchild, oldparent, startnode,
                             ci, rel, old_to_newuser, oldnew_conn,
                             cursor, connection, projectid)
         oldnodesdone.append(str(startnode))
+    else:
+        count += 1
     stepparent = newparent
     if len(oldparentchild.keys()) > 1:
         children = oldparentchild[int(oldparent)]
@@ -325,6 +332,10 @@ def newtrace(new_skel, oldskel, oldparentchild, oldparent, startnode,
                                     rel, old_to_newuser, oldnew_conn,
                                     cursor, connection, projectid)
                 oldnodesdone.append(str(bro))  # FIXME
+            else:
+                count += 1
+                if count > recursion_error_threshold:
+                    break
             while bro in oldparentchild.keys():
                 if len(oldparentchild[bro]) > 1:
                     for kid in oldparentchild[bro]:
@@ -343,8 +354,10 @@ def newtrace(new_skel, oldskel, oldparentchild, oldparent, startnode,
                                             old_to_newuser, oldnew_conn,
                                             cursor, connection, projectid)
                         oldnodesdone.append(str(bro))  # FIXME
+                    else:
                         count += 1
-            print "# of nodes in this segment: " + str(count)
+                        if count > recursion_error_threshold:
+                            break
     return elder
 
 
@@ -421,24 +434,52 @@ def toggle_triggers(table, cursor, state=True):
                  ('ALTER TABLE %s DISABLE TRIGGER USER;'))
     cursor.execute(sqlstring, (AsIs(table), ))
 
-'''
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--db_settings_file', required=True,
+                    help='json file containing access credentials for '
+                    'target CATMAID database.')
+parser.add_argument('-t', '--target_project_id', required=True,
+                    help='CATMAID project id to which reconstructions '
+                    'will be added.')
+parser.add_argument('-i', '--input_project_json', required=True,
+                    help='json file formatted from custom export '
+                    'of CATMAID database.')
+parser.add_argument('-m', '--map_old_new_output', required=False,
+                    help='json file to which skeleton id (pkey) old>new '
+                    'will be written.')
+
 if __name__ == "__main__":
-    projectfile = sys.argv[1]
-    projectid = sys.argv[2]
-'''
+    opts = parser.parse_args()
+    db_settings = (opts.db_settings_file if opts.db_settings_file
+                   else DEFAULT_db_settings)
+    project_id = opts.target_project_id
+    projectfile = (opts.input_project_json if opts.input_project_json
+                   else DEFAULT_projectfile)
+    map_on_file = (opts.map_old_new_output if opts.map_old_new_output
+                   else None)
 
-with open(projectfile, 'r') as f:
-    pdata = json.load(f)
+    # load project dump file
+    with open(projectfile, 'r') as f:
+        pdata = json.load(f)
 
-curs, conn = testdbcursorconn(db_settings)
+    # load db settings and connect to database
+    with open(db_settings, 'r') as f:
+        conn_catmaid_settings = json.load(f)
+    conn = psycopg2.connect(**conn_catmaid_settings)
+    curs = conn_catmaid.cursor()
 
-triggers_to_skip = []
-for t in triggers_to_skip:
-    toggle_trigger(t, curs, False)
+    # optionally skip triggers in selected tables THIS IS NOT RECOMMENDED
+    triggers_to_skip = []
+    for t in triggers_to_skip:
+        toggle_trigger(t, curs, False)
 
-exportdatabase(pdata, curs, conn, projectid, True)
+    exportdatabase(pdata, curs, conn, str(projectid), False)
 
-for t in triggers_to_skip:
-    toggle_triggers(t, curs, True)
+    for t in triggers_to_skip:
+        toggle_triggers(t, curs, True)
 
-conn.close()
+    if map_on_file is not None:
+        with open(map_on_file, 'w') as f:
+            json.dump(o_n_skel, f)
+
+    conn.close()

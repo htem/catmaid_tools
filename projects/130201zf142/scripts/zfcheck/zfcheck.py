@@ -162,9 +162,9 @@ def check_for_loop(neuron):
     """
     local_errors = []
     local_urls = []
-    for node, ned in enumerate(neuron.dgraph.edge):
-        if ned != neuron.root:
-            if len(ned) < (int(neuron.dgraph.degree(ned)) - 1):
+    for node, ned in neuron.dgraph.edge.items():
+        if node != neuron.root:
+            if len(ned) < (int(neuron.dgraph.degree(node)) - 1):
                 errstr = ("LOOP ERROR: {} {} has node {} which is "
                           "cyclic!".format(neuron.name,
                                            neuron.skeleton_id, ned))
@@ -449,7 +449,13 @@ def update_spreadsheet_with_master_errors(errors, urls):
                                              'spreadsheets.google.com/feeds'])
     date = time.strftime("%y%m%d")
     gc = gspread.authorize(credentials)
-    sh = gc.open_by_key('1SwSk5M_lQRZCae9MNJEKdiw1Le9G9u5xeVDcWsfjikk')
+    # Load in google spreadsheet key from env variables
+    try:
+        var = os.environ['GOOGLE_SPREADSHEET_KEY']
+    except KeyError:
+        raise Exception("Google spreadsheet key not set as an environment "
+                        "variable. Cannot access spreadsheet")
+    sh = gc.open_by_key(var)
     sheet_list = sh.worksheets()
     # Create a new worksheet for today
 

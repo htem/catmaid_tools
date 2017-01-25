@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Determining pathlength data for all neurons in a source.
     Currently expects soma input from skelhassoma.json (generated dict using
@@ -9,13 +10,13 @@ Determining pathlength data for all neurons in a source.
 '''
 import argparse
 import catmaid
-from catmaid.algorithms.morphology import total_pathlength, path_length
 import csv
 import numpy
 import json
 import glob
 import os
 from itertools import combinations
+from catmaid.algorithms.morphology import total_pathlength, path_length
 
 conn = catmaid.connect()
 
@@ -28,12 +29,12 @@ filename = "PROJSTATS.txt"
 nnodethres = 15  # only skels with more than nnodethres nodes are complete
 
 
-def write_dictionary_txt(dict, outdir, name):
+def write_dictionary_txt(d, outdir, name):
     if not os.path.exists(outd):
         os.makedirs(outd)
     fn = os.path.join(outdir, name)
     with open(fn, 'w') as f:
-        for k, v in dict.items():
+        for k, v in d.items():
             f.write('{} {}\n'.format(k, v))
 
 
@@ -48,8 +49,10 @@ def get_skels_with_anno(conn, source, annos):
     print "Fetching all annotation IDs"
     # pid = conn._pid
     pid = conn.find_pid(title=None)
-    all_annos = conn.fetchJSON(
-        'http://catmaid.hms.harvard.edu/catmaid3/{}/annotations/'.format(pid))
+    if conn.server[-1] != '/':
+        conn.server += '/'
+    annos_link = '{}{}/annotations/'.format(conn.server, pid)
+    all_annos = conn.fetchJSON(annos_link)
 
     if annos is None:
         raise Exception("Annotation must be set as the first argument or as "
@@ -72,8 +75,8 @@ def get_skels_with_anno(conn, source, annos):
     post = {('annotated_with[%s]' % i): anno for i, anno in enumerate(anno_id)}
 
     # Query the project for skeletons that are annotated with the annotation ID
-    query = conn.fetchJSON('http://catmaid.hms.harvard.edu/catmaid3/{}/'
-                           'annotations/query-targets'.format(pid), post=post)
+    query_link = '{}{}/annotations/query-targets'.format(conn.server, pid)
+    query = conn.fetchJSON(query_link, post=post)
     # Pull out the JSON from the query
 
     query_json = query
