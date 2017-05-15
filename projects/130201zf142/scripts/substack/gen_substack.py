@@ -42,7 +42,9 @@ parser.add_argument(
 parser.add_argument(
         '-r', '--range', type=int, required=True, nargs=2)
 parser.add_argument(
-        '-c', '--center', type=int, required=True, nargs=2)
+        '-cpx', '--center_pixels', type=int, required=False, nargs=2)
+parser.add_argument(
+        '-cnm', '--center_nm', type=int, required=False, nargs=2)
 parser.add_argument(
         '-i', '--imgshape', type=int, required=False, nargs=2)
 
@@ -50,7 +52,16 @@ opts = parser.parse_args()
 
 output = directory(opts.output_dir)
 zrange = tuple(opts.range)
-center = tuple(opts.center)
+if opts.center_pixels is None and opts.center_nm is None:
+    raise Exception("Must provide center coordinates!")
+elif opts.center_pixels is not None and opts.center_nm is None:
+    center = tuple(opts.center_pixels)
+elif opts.center_pixels is None and opts.center_nm is not None:
+    center = (int(opts.center_nm[0] / 18.8),
+              int(opts.center_nm[1] / 18.8))
+elif opts.center_pixels is not None and opts.center_nm is not None:
+    print("Center coordinates given in pixels and nm! Using pixel coords")
+    center = tuple(opts.center_pixels)
 if opts.imgshape is not None:
     imgshape = tuple(opts.imgshape)
 else:
