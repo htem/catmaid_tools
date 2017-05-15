@@ -51,8 +51,6 @@ opts = parser.parse_args()
 output = directory(opts.output_dir)
 zrange = tuple(opts.range)
 center = tuple(opts.center)
-if len(str(center[0])) > 5:
-    center = (int(center[0] / 18.8), int(center[1] / 18.8))
 if opts.imgshape is not None:
     imgshape = tuple(opts.imgshape)
 else:
