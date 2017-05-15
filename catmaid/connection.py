@@ -363,17 +363,21 @@ class Connection:
             else:
                 stack_info = self.stack_info().values()[0]
                 stack_id = stack_info[u'sid']
-        tile_width = stack_info[u'tile_width']
-        tile_height = stack_info[u'tile_height']
+        if len(stack_info['mirrors']) > 1:
+            print("WARNING: More than 1 mirror information present in stack "
+                  "info. Grabbing image dimensions from first mirror")
+        mirror_info = stack_info[u'mirrors'][0]
+        tile_width = mirror_info[u'tile_width']
+        tile_height = mirror_info[u'tile_height']
         max_row = (stack_info[u'dimension'][u'y'] / tile_height) - 1
         max_col = (stack_info[u'dimension'][u'x'] / tile_width) - 1
         if not 0 <= row <= max_row:
             raise errors.InvalidUrl("Invalid row %s" % row)
         if not 0 <= column <= max_col:
             raise errors.InvalidUrl("Invalid column %s" % row)
-        info = {'base': str(stack_info[u'image_base']), 'z_index': z_index,
+        info = {'base': str(mirror_info[u'image_base']), 'z_index': z_index,
                 'row': row, 'column': column, 'zoom': zoom,
-                'ext': stack_info[u'file_extension'],
+                'ext': str(mirror_info[u'file_extension']),
                 'tile_width': tile_width, 'tile_height': tile_height,
                 'project_id': stack_info[u'pid'],
                 'stack_id': stack_id, 'row_by_height': (row * tile_height),
