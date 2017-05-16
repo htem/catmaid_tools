@@ -21,15 +21,19 @@ def gen_images(connection, zrange, center, outdir,
         if z not in broken_slices:
             print "Outputting image for z: {}".format(z)
             fn = '{}_sub.png'.format(str(int(z)).zfill(5))
-            image, no_overlay = IM.img_from_catmaid(connection, center[0],
-                                                    center[1], int(z),
-                                                    imgshape=imgshape,
-                                                    stack_id=6, tiletype=4,
-                                                    add_points=False,
-                                                    image_copy=False)
-            if not os.path.exists(outdir):
-                os.makedirs(outdir)
-            scipy.misc.imsave((outdir + fn), image)
+            try:
+                image, no_overlay = IM.img_from_catmaid(connection, center[0],
+                                                        center[1], int(z),
+                                                        imgshape=imgshape,
+                                                        stack_id=6, tiletype=4,
+                                                        add_points=False,
+                                                        image_copy=False)
+                if not os.path.exists(outdir):
+                    os.makedirs(outdir)
+                scipy.misc.imsave((outdir + fn), image)
+            except:
+                print("Could not grab image for z: {}. Moving on "
+                      "to next image".format(z))
 
 
 def directory(path):
