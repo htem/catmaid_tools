@@ -3,6 +3,7 @@ import catmaid
 import catmaid.algorithms.images as IM
 import os
 import scipy.misc
+import urllib2
 
 
 conn = catmaid.connect()
@@ -31,9 +32,9 @@ def gen_images(connection, zrange, center, outdir,
                 if not os.path.exists(outdir):
                     os.makedirs(outdir)
                 scipy.misc.imsave((outdir + fn), image)
-            except:
-                print("Could not grab image for z: {}. Moving on "
-                      "to next image".format(z))
+            except urllib2.HTTPError as e:
+                print("Could not grab image for z: {} due to {}. Moving on "
+                      "to next image".format(z, e))
 
 
 def directory(path):
