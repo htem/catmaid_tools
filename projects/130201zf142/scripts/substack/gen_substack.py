@@ -15,18 +15,21 @@ def gen_images(connection, zrange, center, outdir,
         raise Exception("Must pass in a tuple for the image range!")
     if not isinstance(center, tuple):
         raise Exception("Must pass in a tuple for the center position")
+    broken_slices = [int(a) for a in
+                     conn.stack_info()[6][u'broken_slices'].keys()]
     for z in range(zrange[0], zrange[1]):
-        print "Outputting image for z: {}".format(z)
-        fn = '{}_sub.png'.format(str(int(z)).zfill(5))
-        image, no_overlay = IM.img_from_catmaid(connection, center[0],
-                                                center[1], int(z),
-                                                imgshape=imgshape,
-                                                stack_id=6, tiletype=4,
-                                                add_points=False,
-                                                image_copy=False)
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-        scipy.misc.imsave((outdir + fn), image)
+        if z not in broken_slices:
+            print "Outputting image for z: {}".format(z)
+            fn = '{}_sub.png'.format(str(int(z)).zfill(5))
+            image, no_overlay = IM.img_from_catmaid(connection, center[0],
+                                                    center[1], int(z),
+                                                    imgshape=imgshape,
+                                                    stack_id=6, tiletype=4,
+                                                    add_points=False,
+                                                    image_copy=False)
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+            scipy.misc.imsave((outdir + fn), image)
 
 
 def directory(path):
