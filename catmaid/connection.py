@@ -317,6 +317,26 @@ class Connection:
         else:
             # if no class_name specified return all results
             return js_result
+    
+    def get_connector_info( self, con_id ):
+        """
+        Returns information about a given connector id (or list of connector
+        ids)
+        """
+        if isinstance(con_id,int):
+            con_id = str(con_id)
+        if isinstance(con_id,str):
+            con_id = [con_id]
+
+        pid = self.find_pid(None)
+        url = '{}{}/connector/skeletons'.format(self.server,pid)
+        pst = 'connector_ids[0]=%s' % con_id[0]
+        
+        for i in range(1, len(con_id)):
+            pst += '&connector_ids[%d]=%s' % (i, con_id[i])
+
+        js_result = self.fetchJSON(url,pst)
+        return js_result
 
     def annotations(self, project=None, limit=None):
         """Return a list of neuron annotations of the format
