@@ -283,6 +283,40 @@ class Connection:
                         "Skeleton[%s] has two neurons %s, %s" % (
                             sid, nid, sid_to_nid[sid]))
         return sid_to_nid
+    
+    def search_string( self, search_query, class_name=None ):
+        """ Returns the results from performing a search on the 
+        current catmaid server
+        
+        Results come in a list of search results.
+        each result will have a member 'class_name' which can be 
+        passed to the function to pare down all other results.
+        Some possible class names are:
+        'neuron','annotation','label'
+
+        Arguments:
+            search_query: susbtring to search for
+            class_name: type of class to search for, can be a list
+                        leave blank to return all class types
+        Returns:
+            list of search results
+        """
+        pid = self.find_pid(None)
+        js_result = self.fetchJSON('{}{}/search?pid={}&substring={}'.format(
+                                        self.server,pid,
+                                        pid,search_query))
+        if class_name is not None:
+            if isinstance(class_name, str):
+                # one class name, turn it into a list of 
+                # class_names
+                class_name = [class_name]
+            
+            # parse down results based on class_names given
+            return [res for res in js_result if res['class_name'] in
+                    class_name]
+        else:
+            # if no class_name specified return all results
+            return js_result
 
     def annotations(self, project=None, limit=None):
         """Return a list of neuron annotations of the format
