@@ -7,7 +7,7 @@
 # such as the skeleton of a neuronal arbor and its synapses
 
 import base64
-import cookielib
+import sys
 import getpass
 import json
 import os
@@ -15,9 +15,18 @@ import logging
 import urllib
 import warnings
 import webbrowser
-from StringIO import StringIO
 import numpy
 from PIL import Image
+
+
+if (sys.version_info > (3, 0)):
+    # Python 3 code in this block
+    from io import StringIO
+    import http.cookiejar as cookielib
+else:
+    from StringIO import StringIO
+    # Python 2 code in this block
+    import cookielib                
 
 try:
     import urllib2
@@ -202,7 +211,7 @@ class Connection:
 
     def skeleton(self, sid, project=None):
         pid = self.find_pid(project)
-        skel = self.fetchJSON('/{}/skeleton/{}/json'.format(pid, sid))
+        skel = self.fetchJSON('/{}/skeletons/{}/compact-detail?with_connectors=true&with_tags=true'.format(pid, sid))
         if isinstance(skel, dict):
             # catmaid1 skeleton
             skel['id'] = sid
@@ -214,6 +223,15 @@ class Connection:
                 # annotations probably don't exist for this server
                 pass
         elif isinstance(skel, list):
+            if isinstance(skel[0], list):
+                # catmaid 3 skeleton
+                name = "Neuron %s"%self.neuron_id(sid, project)
+                nodes = skel[0]
+                for n in nodes:
+                    n += ['','']
+                tags = skel[2]
+                connectors = skel[3]
+                skel = [ name, nodes, tags, connectors, []]
             # catmaid2 skeleton
             skel.append(sid)
             skel.append(self.neuron_id(sid, project))
